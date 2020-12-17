@@ -13,6 +13,6 @@ export const createFakeFetchWrapper = ({ count, delay = 15 }) => {
   return withDelay(delay, pageData)
 }
 
-export const fetchData = createFakeFetchWrapper({ count: 25, delay: +500 })
+export const fetchData = createFakeFetchWrapper({ count: 2000, delay: +400 })
 
 export default createFakeFetchWrapper

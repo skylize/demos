@@ -1,4 +1,11 @@
-import React, { useState, useReducer } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react'
 import './styles.css'
 import styles from './styles.js'
 import { fetchData } from './fake-fetch-data'
@@ -9,28 +16,25 @@ const actions = {
 }
 
 const reducer = (state, action) => {
-  ;(() => {
-    const { data, limit, page } = state
-    console.log({ len: data.length + 10, past: limit * page, limit, page })
-  })()
-  const reductions = {
-    [actions.start]: _ => ({ ...state, loading: true }),
-
-    [actions.loaded]: ({ data, limit, page }, { newData }) => ({
-      ...state,
-      loading: false,
-      data: [...data, ...newData],
-      more: newData.length === limit,
-      page: page + 1,
-    }),
+  switch (action.type) {
+    case actions.start:
+      return { ...state, loading: true }
+    case actions.loaded:
+      return {
+        ...state,
+        loading: false,
+        data: [...state.data, ...action.newData],
+        more: action.newData.length === state.limit,
+        page: state.page + 1,
+      }
+    default:
+      throw new Error(`Unknown action ${action.type} passed to reducer.`)
   }
-  if (!Object.keys(reductions).includes(action.type))
-    throw new Error(`Unknown action ${action.type} passed to reducer.`)
-
-  return reductions[action.type](state, action)
 }
 
-const App = () => {
+const FetchDataCtx = createContext()
+
+const FetchDataProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, {
     data: [],
     loading: false,
@@ -39,7 +43,6 @@ const App = () => {
     more: true,
   })
   const { data, loading, page, limit, more } = state
-  console.log(state)
 
   const load = () => {
     dispatch({ type: actions.start })
@@ -51,27 +54,65 @@ const App = () => {
         }),
       )
   }
-
   return (
-    <div className='App'>
-      <ul style={styles.ul}>
-        {data.map(row => (
-          <li key={row} style={styles.dataLi}>
-            {row}
-          </li>
-        ))}
-        {loading ||
-          (more && (
-            <li style={styles.btnMoreLi}>
-              <button style={styles.btn} onClick={load}>
-                Load more
-              </button>
-            </li>
-          ))}
-        {loading && more && <li style={styles.loadingLi}>...Loading</li>}
-      </ul>
-    </div>
+    <FetchDataCtx.Provider value={{ data, loading, load, more }}>
+      {children}
+    </FetchDataCtx.Provider>
   )
 }
 
-export default App
+const LoadMore = () => {
+  const { loading, more, load } = useContext(FetchDataCtx)
+  const [element, setElement] = useState()
+  const loader = useRef(load)
+
+  const observer = useRef(
+    new IntersectionObserver(
+      entries => entries[0].isIntersecting && loader.current(),
+      { threshold: 0.2 },
+    ),
+  )
+
+  useEffect(() => {
+    loader.current = load
+  }, [load])
+
+  useEffect(() => {
+    const el = element
+    const ob = observer.current
+
+    el && ob.observe(el)
+
+    return () => el && ob.unobserve(el)
+  }, [element])
+
+  return !loading && more && <li ref={setElement} style={styles.btnMoreLi} />
+}
+
+const Loading = () => {
+  const { loading, more } = useContext(FetchDataCtx)
+  return loading && more && <li style={styles.li}>...Loading</li>
+}
+
+const Loader = () => {
+  const { data } = useContext(FetchDataCtx)
+  return (
+    <ul style={styles.ul}>
+      {data.map(row => (
+        <li key={row} style={styles.dataLi}>
+          {row}
+        </li>
+      ))}
+      <LoadMore />
+      <Loading />
+    </ul>
+  )
+}
+
+export default App = () => (
+  <FetchDataProvider>
+    <div className='App'>
+      <Loader />
+    </div>
+  </FetchDataProvider>
+)

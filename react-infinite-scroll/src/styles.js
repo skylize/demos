@@ -18,17 +18,8 @@ const defaultStyles = {
     width: '6em',
     height: '1.4em',
     borderRadius: '.3em',
-    boxShadow: 'inset -.2em -.2em .4em rgba(0, 0, 0, 0.5)',
     lineHeight: '1.42em',
-  },
-  btn: {
-    width: '100%',
-    height: '100%',
-    background: 'none',
-    border: 'none',
-    color: 'honeydew',
-    fontSize: '.8em',
-    lineHeight: '.2em',
+    color: 'slateblue',
   },
 }
 
@@ -40,15 +31,7 @@ const styles = {
     ...li,
     background: 'fuchsia',
     color: 'lavender',
-  },
-  btnMoreLi: {
-    ...li,
-    background: 'mediumslateblue',
-  },
-  loadingLi: {
-    ...li,
-    boxShadow: 'none',
-    color: 'slateblue',
+    boxShadow: 'inset -.2em -.2em .4em rgba(0, 0, 0, 0.5)',
   },
 }
 
