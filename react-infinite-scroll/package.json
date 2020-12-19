@@ -1,7 +1,7 @@
 {
   "name": "demo-react-infinite-scroll",
   "version": "1.0.0",
-  "description": "Tutorial found at https://github.com/leighhalliday/demo-infinite-scroll",
+  "description": "Infinite scrolling React component",
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
