@@ -5,7 +5,7 @@ import { LoadingProvider } from './loading-context'
 import './styles.css'
 
 const App = () => (
-  <div className='App'>
+  <div className="App">
     <LoadingProvider>
       <LongList />
     </LoadingProvider>
